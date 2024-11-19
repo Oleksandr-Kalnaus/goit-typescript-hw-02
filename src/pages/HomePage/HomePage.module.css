@@ -1,0 +1,8 @@
+.homePageBox {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+.heading {
+  color: #007bff;
+}

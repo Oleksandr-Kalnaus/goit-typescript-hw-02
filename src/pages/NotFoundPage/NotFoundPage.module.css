@@ -1,0 +1,26 @@
+.NotFoundPage {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
+}
+.imgNotFoundPage {
+  width: 40%;
+}
+.goBackBtn {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: #007bff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s ease-in-out;
+}
+
+.goBackBtn:hover {
+  background-color: #007bff;
+  color: #ffffff;
+}

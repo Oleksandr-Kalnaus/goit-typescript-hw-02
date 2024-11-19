@@ -1,0 +1,34 @@
+.movieCast {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+}
+.castHeading {
+  color: #007bff;
+  text-align: center;
+  margin: 0;
+}
+.actorList {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.actor {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  width: 100px;
+}
+.actorName {
+  color: #007bff;
+  text-align: center;
+  margin: 0;
+  text-wrap: wrap;
+}
+.actorPhoto {
+  width: 100px;
+  height: 150px;
+  border-radius: 5px;
+}

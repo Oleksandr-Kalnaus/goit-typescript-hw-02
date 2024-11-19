@@ -1,0 +1,26 @@
+.movieReviews {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.movieHeading {
+  margin: 0;
+  color: #007bff;
+}
+.reviewsList {
+  margin: 0;
+  list-style: none;
+}
+.reviewAuthor {
+  color: #007bff;
+}
+.reviewContent {
+  color: #007bff;
+  text-align: justify;
+}
+.title {
+  text-decoration: underline;
+}
+.noReviews {
+  color: chocolate;
+}
