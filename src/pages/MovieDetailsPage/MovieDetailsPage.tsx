@@ -1,47 +1,24 @@
 import { useEffect, useState, useRef } from "react";
 import {
   useParams,
-  Outlet,
-  Link,
-  useLocation,
   useNavigate,
+  useLocation,
+  Link,
+  Outlet,
 } from "react-router-dom";
 import apiRequests from "../../utils/apiRequests";
+import { MovieDetails } from "../../types/types";
 import css from "./MovieDetailsPage.module.css";
 import poster from "../../../public/img/poster.jpg";
 
-interface RouteParams {
-  id: string;
-}
-
-interface Movie {
-  id: number;
-  title: string;
-  poster_path: string | null;
-  budget: number;
-  status: string;
-  vote_average: number;
-  overview: string;
-}
-
-interface ApiError extends Error {
-  response?: {
-    status: number;
-    data: {
-      status_message: string;
-    };
-  };
-  request?: unknown;
-}
-
 function MovieDetailsPage() {
-  const { id } = useParams<RouteParams>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
 
   const previousLocation = useRef(location.state?.from || "/movies");
 
-  const [movie, setMovie] = useState<Movie | null>(null);
+  const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
@@ -50,34 +27,29 @@ function MovieDetailsPage() {
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
-        const movieData: Movie = await apiRequests("details", 1, id!);
-        setMovie(movieData);
-      } catch (err) {
-        const apiError = err as ApiError;
-        if (apiError.response) {
-          setError(
-            new Error(
-              `Error ${apiError.response.status}: ${apiError.response.data.status_message}`
-            )
-          );
-        } else if (apiError.request) {
-          setError(
-            new Error("No response from the server. Please try again later.")
-          );
+        const movieData = await apiRequests("details", 1, id);
+        if (movieData && movieData.movieDetails) {
+          setMovie(movieData.movieDetails);
         } else {
-          setError(new Error(apiError.message));
+          setError(new Error("Movie details not found"));
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err);
+        } else {
+          setError(new Error("An unknown error occurred"));
         }
       }
     };
     fetchMovieDetails();
   }, [id]);
 
-  if (error) return <p>Error: {error.message}</p>;
-  if (!movie) return <div>Loading...</div>;
-
   const handleGoBack = () => {
     navigate(previousLocation.current);
   };
+
+  if (error) return <p>Error: {error.message}</p>;
+  if (!movie) return <div>Loading...</div>;
 
   return (
     <div className={css.movieDetailsPage}>
@@ -94,17 +66,18 @@ function MovieDetailsPage() {
                 : DEFAULT_POSTER_URL
             }
             alt={`${movie.title} Poster`}
-            onError={(e) =>
-              ((e.target as HTMLImageElement).src = DEFAULT_POSTER_URL)
-            }
+            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+              const target = e.target as HTMLImageElement;
+              target.src = DEFAULT_POSTER_URL;
+            }}
           />
         </div>
 
         <div className={css.dataBox}>
           <h1 className={css.heading}>{movie.title}</h1>
           <p className={css.dataText}>
-            Budget:
-            {movie.budget > 0 ? ` ${movie.budget}$` : " Budget is not known"}
+            Budget:{" "}
+            {movie.budget > 0 ? ` ${movie.budget}$` : "Budget is not known"}
           </p>
           <p className={css.dataText}>Status: {movie.status}</p>
           <p className={css.dataText}>Rating: {movie.vote_average}</p>

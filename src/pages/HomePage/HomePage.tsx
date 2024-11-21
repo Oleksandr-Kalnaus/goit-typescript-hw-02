@@ -1,32 +1,29 @@
 import { useEffect, useState } from "react";
 import MovieList from "../../components/MovieList/MovieList";
 import apiRequests from "../../utils/apiRequests";
+import { Movie } from "../../types/types";
 import css from "./HomePage.module.css";
-
-interface Movie {
-  id: number;
-  title: string;
-  overview: string;
-  poster_path: string;
-  release_date: string;
-}
-
-interface ApiResponse {
-  movies: Movie[];
-}
 
 function HomePage() {
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchTrendingMovies = async () => {
       try {
-        const { movies }: ApiResponse = await apiRequests("trending");
-        setMovies(movies);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error("Unknown error"));
+        const response = await apiRequests("trending");
+        if (response && response.movies) {
+          setMovies(response.movies);
+        } else {
+          setError(new Error("No movies found"));
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err);
+        } else {
+          setError(new Error("An unknown error occurred"));
+        }
       } finally {
         setLoading(false);
       }

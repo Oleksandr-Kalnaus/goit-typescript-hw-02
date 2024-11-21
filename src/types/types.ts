@@ -1,13 +1,12 @@
 export interface Movie {
   id: number;
   title: string;
-  originalTitle: string;
-  popularity: number;
-  poster: string;
-  dateOfRelease: string;
+  poster_path: string | null;
+  release_date: string;
+  overview: string;
 }
 
-export interface Cast {
+export interface CastMember {
   cast_id: number;
   name: string;
   character: string;
@@ -20,17 +19,26 @@ export interface Review {
   content: string;
 }
 
+export interface MovieDetails {
+  id: number;
+  title: string;
+  overview: string;
+  budget: number;
+  poster_path: string | null;
+  vote_average: number;
+  release_date: string;
+  status: string;
+}
+
+export interface ApiResponse {
+  movies?: Movie[];
+  cast?: CastMember[];
+  reviews?: Review[];
+  totalPages?: number;
+  totalResult?: number;
+  movieDetails?: MovieDetails;
+}
+
 export interface MovieListProps {
   movies: Movie[];
-}
-
-export interface MovieDetailsProps {
-  movieId: string;
-  movie: Movie | null;
-  error: Error | null;
-  loading: boolean;
-}
-
-export interface NavLinkProps {
-  isActive: boolean;
 }

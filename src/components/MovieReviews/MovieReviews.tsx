@@ -1,31 +1,40 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiRequests from "../../utils/apiRequests";
+import { Review, ApiResponse } from "../../types/types";
 import css from "./MovieReviews.module.css";
 
-interface Review {
-  id: string;
-  author: string;
-  content: string;
-}
-
 function MovieReviews() {
-  const { id: movieId } = useParams<{ id: string }>();
+  const { id: movieId } = useParams();
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const reviewsData = await apiRequests("reviews", 1, movieId || "");
-        setReviews(reviewsData || []);
-      } catch (err) {
-        setError(err as Error);
+        const reviewsData: ApiResponse | undefined = await apiRequests(
+          "reviews",
+          1,
+          movieId
+        );
+
+        if (reviewsData && reviewsData.reviews) {
+          setReviews(reviewsData.reviews);
+        } else {
+          setReviews([]);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err);
+        } else {
+          setError(new Error("An unknown error occurred"));
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchReviews();
   }, [movieId]);
 

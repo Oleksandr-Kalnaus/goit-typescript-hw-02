@@ -1,75 +1,35 @@
 import axios from "axios";
-
-const BASE_URL = "https://api.themoviedb.org/3";
-axios.defaults.baseURL = BASE_URL;
-
-interface Movie {
-  id: number;
-  originalTitle: string;
-  popularity: number;
-  poster: string | null;
-  dateOfRelease: string;
-  title: string;
-}
-
-interface TrendingOrSearchResponse {
-  movies: Movie[];
-  totalPages: number;
-  totalResult: number;
-}
-
-interface MovieDetails {
-  id: number;
-  title: string;
-  overview: string;
-  budget: number;
-  poster_path: string | null;
-  vote_average: number;
-  release_date: string;
-  status: string;
-}
-
-interface Review {
-  id: string;
-  author: string;
-  content: string;
-}
-
-interface CastMember {
-  cast_id: number;
-  name: string;
-  character: string;
-  profile_path: string | null;
-}
-
-type ApiResponse =
-  | TrendingOrSearchResponse
-  | MovieDetails
-  | Review[]
-  | CastMember[];
+import {
+  ApiResponse,
+  CastMember,
+  Movie,
+  MovieDetails,
+  Review,
+} from "../types/types";
 
 const apiRequests = async (
   endpoint: "trending" | "search" | "details" | "reviews" | "cast",
   page: number = 1,
   movieId: string = ""
-): Promise<ApiResponse> => {
+): Promise<ApiResponse | undefined> => {
   let url: string;
+  const BASE_URL = "https://api.themoviedb.org/3";
 
   switch (endpoint) {
     case "trending":
-      url = `/trending/movie/week?language=en-US`;
+      url = `${BASE_URL}/trending/movie/week?language=en-US`;
       break;
     case "search":
-      url = `/search/movie?query=${movieId}&include_adult=false&language=en-US&page=${page}`;
+      url = `${BASE_URL}/search/movie?query=${movieId}&include_adult=false&language=en-US&page=${page}`;
       break;
     case "details":
-      url = `/movie/${movieId}?language=en-US`;
+      url = `${BASE_URL}/movie/${movieId}?language=en-US`;
       break;
     case "reviews":
-      url = `/movie/${movieId}/reviews?language=en-US&page=${page}`;
+      url = `${BASE_URL}/movie/${movieId}/reviews?language=en-US&page=${page}`;
       break;
     case "cast":
-      url = `/movie/${movieId}/credits?language=en-US`;
+      url = `${BASE_URL}/movie/${movieId}/credits?language=en-US`;
       break;
     default:
       throw new Error("Unknown endpoint");
@@ -99,16 +59,18 @@ const apiRequests = async (
       const totalResult: number = response.data.total_results;
       return { movies, totalPages, totalResult };
     } else if (endpoint === "details") {
-      return response.data as MovieDetails;
+      return { movieDetails: response.data as MovieDetails };
     } else if (endpoint === "reviews") {
-      return response.data.results as Review[];
+      return { reviews: response.data.results as Review[] };
     } else if (endpoint === "cast") {
-      return response.data.cast as CastMember[];
+      return { cast: response.data.cast as CastMember[] };
     }
   } catch (error: any) {
     console.error("Error: " + error);
     throw error;
   }
+
+  return undefined;
 };
 
 export default apiRequests;

@@ -4,19 +4,8 @@ import MovieList from "../../components/MovieList/MovieList";
 import { Toaster, toast } from "react-hot-toast";
 import { FaFilm } from "react-icons/fa";
 import apiRequests from "../../utils/apiRequests";
+import { ApiResponse, Movie } from "../../types/types";
 import css from "./MoviesPage.module.css";
-
-interface Movie {
-  id: number;
-  title: string;
-  poster_path: string | null;
-  release_date: string;
-  overview: string;
-}
-
-interface ApiResponse {
-  movies: Movie[];
-}
 
 function MoviesPage() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -32,10 +21,20 @@ function MoviesPage() {
 
   const handleSearch = async (query: string) => {
     try {
-      const { movies }: ApiResponse = await apiRequests("search", 1, query);
-      setMovies(movies);
-    } catch (error) {
+      const response: ApiResponse | undefined = await apiRequests(
+        "search",
+        1,
+        query
+      );
+
+      if (response && response.movies) {
+        setMovies(response.movies);
+      } else {
+        setMovies([]);
+      }
+    } catch (error: unknown) {
       console.error("Search error:", error);
+      toast.error("An error occurred while fetching the movies.");
     }
   };
 
@@ -68,7 +67,6 @@ function MoviesPage() {
           <button className={css.button} type="submit">
             <FaFilm className={css.icon} />
           </button>
-          <Toaster position="top-right" reverseOrder={false} />
         </form>
       </div>
 
@@ -77,6 +75,7 @@ function MoviesPage() {
       )}
 
       <MovieList movies={movies} />
+      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 }

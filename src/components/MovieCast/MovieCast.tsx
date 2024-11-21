@@ -1,37 +1,51 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiRequests from "../../utils/apiRequests";
+import { CastMember, ApiResponse } from "../../types/types";
 import css from "./MovieCast.module.css";
-import actorImage from "../../../public/img/actor.jpg";
+import actor from "../../../public/img/actor.jpg";
 
-interface Actor {
-  cast_id: number;
-  name: string;
-  character: string;
-  profile_path: string | null;
-}
-
-function MovieCast() {
-  const { id: movieId } = useParams<{ id: string }>();
-
-  const [cast, setCast] = useState<Actor[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+const MovieCast = () => {
+  const { id: movieId } = useParams();
+  const [cast, setCast] = useState<CastMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
-  const DEFAULT_IMAGE = actorImage;
+  const DEFAULT_IMAGE = actor;
 
   useEffect(() => {
+    if (!movieId) {
+      setError(new Error("Movie ID is required"));
+      setLoading(false);
+      return;
+    }
+
     const fetchCast = async () => {
       try {
-        const castData = await apiRequests("cast", 1, movieId || "");
-        setCast((castData as Actor[]) || []);
-      } catch (err) {
-        setError(err as Error);
+        const castData: ApiResponse | undefined = await apiRequests(
+          "cast",
+          1,
+          movieId
+        );
+
+        if (castData && castData.cast) {
+          // Ensure castData is not undefined and has 'cast'
+          setCast(castData.cast);
+        } else {
+          throw new Error("Invalid response format or no cast data");
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err);
+        } else {
+          setError(new Error("An unknown error occurred"));
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchCast();
   }, [movieId]);
 
@@ -53,7 +67,8 @@ function MovieCast() {
               }
               alt={`${actor.name} Photo`}
               onError={(e) => {
-                (e.target as HTMLImageElement).src = DEFAULT_IMAGE;
+                const target = e.target as HTMLImageElement;
+                target.src = DEFAULT_IMAGE;
               }}
             />
             <p className={css.actorName}>
@@ -64,6 +79,6 @@ function MovieCast() {
       </ul>
     </div>
   );
-}
+};
 
 export default MovieCast;
