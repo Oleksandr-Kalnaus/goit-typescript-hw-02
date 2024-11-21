@@ -3,20 +3,25 @@ import { useParams } from "react-router-dom";
 import apiRequests from "../../utils/apiRequests";
 import css from "./MovieReviews.module.css";
 
+interface Review {
+  id: string;
+  author: string;
+  content: string;
+}
+
 function MovieReviews() {
-  const { id: movieId } = useParams();
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { id: movieId } = useParams<{ id: string }>();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const reviewsData = await apiRequests("reviews", 1, movieId);
-        console.log(reviewsData);
+        const reviewsData = await apiRequests("reviews", 1, movieId || "");
         setReviews(reviewsData || []);
       } catch (err) {
-        setError(err);
+        setError(err as Error);
       } finally {
         setLoading(false);
       }

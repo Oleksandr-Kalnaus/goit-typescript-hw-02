@@ -3,21 +3,76 @@ import axios from "axios";
 const BASE_URL = "https://api.themoviedb.org/3";
 axios.defaults.baseURL = BASE_URL;
 
-const apiRequests = async (endpoint, page = 1, movieId = "") => {
-  let url;
+interface Movie {
+  id: number;
+  originalTitle: string;
+  popularity: number;
+  poster: string | null;
+  dateOfRelease: string;
+  title: string;
+}
 
-  if (endpoint === "trending") {
-    url = `/trending/movie/week?language=en-US`;
-  } else if (endpoint === "search") {
-    url = `/search/movie?query=${movieId}&include_adult=false&language=en-US&page=${page}`;
-  } else if (endpoint === "details") {
-    url = `/movie/${movieId}?language=en-US`;
-  } else if (endpoint === "reviews") {
-    url = `/movie/${movieId}/reviews?language=en-US&page=${page}`;
-  } else if (endpoint === "cast") {
-    url = `/movie/${movieId}/credits?language=en-US`;
-  } else {
-    throw new Error("Unknown endpoint");
+interface TrendingOrSearchResponse {
+  movies: Movie[];
+  totalPages: number;
+  totalResult: number;
+}
+
+interface MovieDetails {
+  id: number;
+  title: string;
+  overview: string;
+  budget: number;
+  poster_path: string | null;
+  vote_average: number;
+  release_date: string;
+  status: string;
+}
+
+interface Review {
+  id: string;
+  author: string;
+  content: string;
+}
+
+interface CastMember {
+  cast_id: number;
+  name: string;
+  character: string;
+  profile_path: string | null;
+}
+
+type ApiResponse =
+  | TrendingOrSearchResponse
+  | MovieDetails
+  | Review[]
+  | CastMember[];
+
+const apiRequests = async (
+  endpoint: "trending" | "search" | "details" | "reviews" | "cast",
+  page: number = 1,
+  movieId: string = ""
+): Promise<ApiResponse> => {
+  let url: string;
+
+  switch (endpoint) {
+    case "trending":
+      url = `/trending/movie/week?language=en-US`;
+      break;
+    case "search":
+      url = `/search/movie?query=${movieId}&include_adult=false&language=en-US&page=${page}`;
+      break;
+    case "details":
+      url = `/movie/${movieId}?language=en-US`;
+      break;
+    case "reviews":
+      url = `/movie/${movieId}/reviews?language=en-US&page=${page}`;
+      break;
+    case "cast":
+      url = `/movie/${movieId}/credits?language=en-US`;
+      break;
+    default:
+      throw new Error("Unknown endpoint");
   }
 
   const options = {
@@ -32,7 +87,7 @@ const apiRequests = async (endpoint, page = 1, movieId = "") => {
     const response = await axios.get(url, options);
 
     if (endpoint === "trending" || endpoint === "search") {
-      const movies = response.data.results.map((movie) => ({
+      const movies: Movie[] = response.data.results.map((movie: any) => ({
         id: movie.id,
         originalTitle: movie.original_title || "No title",
         popularity: movie.popularity,
@@ -40,17 +95,17 @@ const apiRequests = async (endpoint, page = 1, movieId = "") => {
         dateOfRelease: movie.release_date,
         title: movie.title,
       }));
-      const totalPages = response.data.total_pages;
-      const totalResult = response.data.total_results;
+      const totalPages: number = response.data.total_pages;
+      const totalResult: number = response.data.total_results;
       return { movies, totalPages, totalResult };
     } else if (endpoint === "details") {
-      return response.data;
+      return response.data as MovieDetails;
     } else if (endpoint === "reviews") {
-      return response.data.results;
+      return response.data.results as Review[];
     } else if (endpoint === "cast") {
-      return response.data.cast;
+      return response.data.cast as CastMember[];
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error: " + error);
     throw error;
   }

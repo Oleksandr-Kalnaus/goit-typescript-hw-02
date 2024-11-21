@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import MovieList from "../../components/MovieList/MovieList";
 import { Toaster, toast } from "react-hot-toast";
@@ -6,11 +6,23 @@ import { FaFilm } from "react-icons/fa";
 import apiRequests from "../../utils/apiRequests";
 import css from "./MoviesPage.module.css";
 
+interface Movie {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  release_date: string;
+  overview: string;
+}
+
+interface ApiResponse {
+  movies: Movie[];
+}
+
 function MoviesPage() {
-  const [movies, setMovies] = useState([]);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     if (query) {
@@ -18,20 +30,20 @@ function MoviesPage() {
     }
   }, [query]);
 
-  const handleSearch = async (query) => {
+  const handleSearch = async (query: string) => {
     try {
-      const { movies } = await apiRequests("search", 1, query);
+      const { movies }: ApiResponse = await apiRequests("search", 1, query);
       setMovies(movies);
     } catch (error) {
       console.error("Search error:", error);
     }
   };
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (searchQuery.trim() === "") {
       toast.error("You must enter text to search for movies");
