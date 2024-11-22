@@ -30,7 +30,6 @@ const MovieCast = () => {
         );
 
         if (castData && castData.cast) {
-          // Ensure castData is not undefined and has 'cast'
           setCast(castData.cast);
         } else {
           throw new Error("Invalid response format or no cast data");
