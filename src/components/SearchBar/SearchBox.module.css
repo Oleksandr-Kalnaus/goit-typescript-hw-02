@@ -1,0 +1,63 @@
+.searchBar {
+  margin-top: 10px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  transition: width 0.3s ease;
+}
+
+.input {
+  width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: width 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.icon {
+  font-size: 24px;
+  transition: color 0.3s ease;
+}
+
+.icon:hover,
+.icon:focus {
+  color: #007bff;
+}
+
+.searchBar:hover .form,
+.searchBar:focus .form {
+  width: 300px;
+}
+
+.searchBar:hover .input,
+.searchBar:focus .input,
+.searchBar:active .input {
+  width: 100%;
+  opacity: 1;
+  visibility: visible;
+}
+.searchBar:focus-within .form {
+  width: 300px;
+}
+
+.searchBar:focus-within .input {
+  width: 100%;
+  opacity: 1;
+  visibility: visible;
+}

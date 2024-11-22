@@ -1,0 +1,25 @@
+.imageCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: var(--color-light);
+  border: 1px solid #9fd75b;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.imageDescr {
+  display: flex;
+  gap: 8px;
+}
+
+.imageNamed {
+  width: ;
+}
+
+.imageLikes {
+}
+
+.imageDateOfCreate {
+}
